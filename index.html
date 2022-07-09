@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Led</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div class="header">
+        <div class="contenedor-titulo">
+            <h1>
+                ESP32 RGB LED Strip with Color Picker Web Server
+            </h1>
+
+            <h3>
+                En este proyecto, le mostraremos cómo controlar de forma remota una tira de LED RGB con una placa ESP32 utilizando un servidor web con un selector de color.
+            </h3>
+            <div class="contenedor-img">
+                <img src="img/esp32-img.webp" alt="imagen placa">
+            </div>
+        </div>
+
+
+        <div class="contenedor-descripcion">
+            <h1> Descripcion del proyecto</h1>
+
+            <div class="contenedor">
+                <ul>
+                    <li class="lista">
+                        El servidor web ESP32 muestra un selector de color.
+                    </li>
+                    <li class="lista">
+                        Cuando elige un color, su navegador realiza una solicitud en una URL que contiene los parámetros R, G y B del color seleccionado.
+                    </li>
+                    <li class="lista">Su ESP32 recibe la solicitud y divide el valor de cada parámetro de color.</li>
+                    <li class="lista">Luego, envía una señal PWM con el valor correspondiente a los GPIO que están controlando la tira.</li>
+                </ul>
+
+            </div>
+        </div>
+        
+        <div class="contendor-piezas">            
+            <h1>
+                Piezas necesarias
+            </h1>
+            <h2>
+                Para este proyecto necesitas las siguientes partes:
+            </h2>
+            
+            <div class="contenedor">
+                <ul>
+                    <li class="lista">
+                        Placa esp32 (Arduino)
+                    </li>
+                    <li class="lista">
+                        Tira de Led RGB(12V)
+                    </li>
+                    <li class="lista">
+                        3 tip 122
+                    </li>
+                    <li class="lista">
+                        3 Resistencias 
+                    </li>
+                    <li class="lista">
+                        Cable puentes
+                    </li>
+                    <li class="lista">
+                        Tablero de circuito
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="contenedor-circuito">
+            <h2>
+                circuito:
+            </h2>
+        </div>
+        <div class="contenedor-img">
+            <img class="img-placa" src="img/placa.png" alt="img de placa">
+        </div>
+
+        <div class="contenedor-codigo">
+
+            <div class="contenedor-codigo_titulo">
+                <h2>    
+                codigo Esp32
+                </h2>
+            </div>
+
+            <pre style="max-height: 100rem; margin-bottom: 20px;" class=" language-c" data-slot-rendered-dynamic="true"><code class=" language-c"><font></font>
+              <font></font>
+              <span class="token comment">// Load Wi-Fi library</span>
+              <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;WiFi.h&gt;</span></span><font></font>
+              <font></font>
+              <span class="token comment">// Replace with your network credentials</span>
+              <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> ssid     <span class="token operator">=</span> <span class="token string">"REPLACE_WITH_YOUR_SSID"</span><span class="token punctuation">;</span>
+              <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> password <span class="token operator">=</span> <span class="token string">"REPLACE_WITH_YOUR_PASSWORD"</span><span class="token punctuation">;</span><font></font>
+              <font></font>
+              <span class="token comment">// Set web server port number to 80</span>
+              WiFiServer <span class="token function">server</span><span class="token punctuation">(</span><span class="token number">80</span><span class="token punctuation">)</span><span class="token punctuation">;</span><font></font>
+              <font></font>
+              <span class="token comment">// Decode HTTP GET value</span>
+              String redString <span class="token operator">=</span> <span class="token string">"0"</span><span class="token punctuation">;</span>
+              String greenString <span class="token operator">=</span> <span class="token string">"0"</span><span class="token punctuation">;</span>
+              String blueString <span class="token operator">=</span> <span class="token string">"0"</span><span class="token punctuation">;</span>
+              <span class="token keyword">int</span> pos1 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+              <span class="token keyword">int</span> pos2 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+              <span class="token keyword">int</span> pos3 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+              <span class="token keyword">int</span> pos4 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span><font></font>
+              <font></font>
+              <span class="token comment">// Variable to store the HTTP req  uest</span>
+              String header<span class="token punctuation">;</span><font></font>
+              <font></font>
+              <span class="token comment">// Red, green, and blue pins for PWM control</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> redPin <span class="token operator">=</span> <span class="token number">13</span><span class="token punctuation">;</span>     <span class="token comment">// 13 corresponds to GPIO13</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> greenPin <span class="token operator">=</span> <span class="token number">12</span><span class="token punctuation">;</span>   <span class="token comment">// 12 corresponds to GPIO12</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> bluePin <span class="token operator">=</span> <span class="token number">14</span><span class="token punctuation">;</span>    <span class="token comment">// 14 corresponds to GPIO14</span><font></font>
+              <font></font>
+              <span class="token comment">// Setting PWM frequency, channels and bit resolution</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> freq <span class="token operator">=</span> <span class="token number">5000</span><span class="token punctuation">;</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> redChannel <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> greenChannel <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> blueChannel <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+              <span class="token comment">// Bit resolution 2^8 = 256</span>
+              <span class="token keyword">const</span> <span class="token keyword">int</span> resolution <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">;</span><font></font>
+              <font></font>
+              <span class="token comment">// Current time</span>
+              <span class="token keyword">unsigned</span> <span class="token keyword">long</span> currentTime <span class="token operator">=</span> <span class="token function">millis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+              <span class="token comment">// Previous time</span>
+              <span class="token keyword">unsigned</span> <span class="token keyword">long</span> previousTime <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> 
+              <span class="token comment">// Define timeout time in milliseconds (example: 2000ms = 2s)</span>
+              <span class="token keyword">const</span> <span class="token keyword">long</span> timeoutTime <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">;</span><font></font>
+              <font></font>
+              <span class="token keyword">void</span> <span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                Serial<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token number">115200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">// configure LED PWM functionalitites</span>
+                <span class="token function">ledcSetup</span><span class="token punctuation">(</span>redChannel<span class="token punctuation">,</span> freq<span class="token punctuation">,</span> resolution<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">ledcSetup</span><span class="token punctuation">(</span>greenChannel<span class="token punctuation">,</span> freq<span class="token punctuation">,</span> resolution<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">ledcSetup</span><span class="token punctuation">(</span>blueChannel<span class="token punctuation">,</span> freq<span class="token punctuation">,</span> resolution<span class="token punctuation">)</span><span class="token punctuation">;</span><font></font>
+                <font></font>
+                <span class="token comment">// attach the channel to the GPIO to be controlled</span>
+                <span class="token function">ledcAttachPin</span><span class="token punctuation">(</span>redPin<span class="token punctuation">,</span> redChannel<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">ledcAttachPin</span><span class="token punctuation">(</span>greenPin<span class="token punctuation">,</span> greenChannel<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">ledcAttachPin</span><span class="token punctuation">(</span>bluePin<span class="token punctuation">,</span> blueChannel<span class="token punctuation">)</span><span class="token punctuation">;</span><font></font>
+                <font></font>
+                <span class="token comment">// Connect to Wi-Fi network with SSID and password</span>
+                Serial<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"Connecting to "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>ssid<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                WiFi<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span>ssid<span class="token punctuation">,</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">while</span> <span class="token punctuation">(</span>WiFi<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> WL_CONNECTED<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                  <span class="token function">delay</span><span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                  Serial<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment">// Print local IP address and start web server</span>
+                Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"WiFi connected."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"IP address: "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>WiFi<span class="token punctuation">.</span><span class="token function">localIP</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                server<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+              <span class="token punctuation">}</span><font></font>
+              <font></font>
+              <span class="token keyword">void</span> <span class="token function">loop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                WiFiClient client <span class="token operator">=</span> server<span class="token punctuation">.</span><span class="token function">available</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// Listen for incoming clients</span><font></font>
+              <font></font>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>client<span class="token punctuation">)</span> <span class="token punctuation">{</span>                             <span class="token comment">// If a new client connects,</span>
+                  currentTime <span class="token operator">=</span> <span class="token function">millis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                  previousTime <span class="token operator">=</span> currentTime<span class="token punctuation">;</span>
+                  Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"New Client."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>          <span class="token comment">// print a message out in the serial port</span>
+                  String currentLine <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>                <span class="token comment">// make a String to hold incoming data from the client</span>
+                  <span class="token keyword">while</span> <span class="token punctuation">(</span>client<span class="token punctuation">.</span><span class="token function">connected</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> currentTime <span class="token operator">-</span> previousTime <span class="token operator">&lt;=</span> timeoutTime<span class="token punctuation">)</span> <span class="token punctuation">{</span>            <span class="token comment">// loop while the client's connected</span>
+                    currentTime <span class="token operator">=</span> <span class="token function">millis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>client<span class="token punctuation">.</span><span class="token function">available</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>             <span class="token comment">// if there's bytes to read from the client,</span>
+                      <span class="token keyword">char</span> c <span class="token operator">=</span> client<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>             <span class="token comment">// read a byte, then</span>
+                      Serial<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>c<span class="token punctuation">)</span><span class="token punctuation">;</span>                    <span class="token comment">// print it out the serial monitor</span>
+                      header <span class="token operator">+=</span> c<span class="token punctuation">;</span>
+                      <span class="token keyword">if</span> <span class="token punctuation">(</span>c <span class="token operator">==</span> <span class="token string">'\n'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>                    <span class="token comment">// if the byte is a newline character</span>
+                        <span class="token comment">// if the current line is blank, you got two newline characters in a row.</span>
+                        <span class="token comment">// that's the end of the client HTTP request, so send a response:</span>
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>currentLine<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                          <span class="token comment">// HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)</span>
+                          <span class="token comment">// and a content-type so the client knows what's coming, then a blank line:</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"HTTP/1.1 200 OK"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Content-type:text/html"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Connection: close"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><font></font>
+                                 <font></font>
+                          <span class="token comment">// Display the HTML web page</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;!DOCTYPE html&gt;&lt;html&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;head&gt;&lt;meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;link rel=\"icon\" href=\"data:,\"&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css\"&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;script src=\"https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js\"&gt;&lt;/script&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;/head&gt;&lt;body&gt;&lt;div class=\"container\"&gt;&lt;div class=\"row\"&gt;&lt;h1&gt;ESP Color Picker&lt;/h1&gt;&lt;/div&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;a class=\"btn btn-primary btn-lg\" href=\"#\" id=\"change_color\" role=\"button\"&gt;Change Color&lt;/a&gt; "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;input class=\"jscolor {onFineChange:'update(this)'}\" id=\"rgb\"&gt;&lt;/div&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"&lt;script&gt;function update(picker) {document.getElementById('rgb').innerHTML = Math.round(picker.rgb[0]) + ', ' +  Math.round(picker.rgb[1]) + ', ' + Math.round(picker.rgb[2]);"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"document.getElementById(\"change_color\").href=\"?r\" + Math.round(picker.rgb[0]) + \"g\" +  Math.round(picker.rgb[1]) + \"b\" + Math.round(picker.rgb[2]) + \"&amp;\";}&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          <span class="token comment">// The HTTP response ends with another blank line</span>
+                          client<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><font></font>
+              <font></font>
+                          <span class="token comment">// Request sample: /?r201g32b255&amp;</span>
+                          <span class="token comment">// Red = 201 | Green = 32 | Blue = 255</span>
+                          <span class="token keyword">if</span><span class="token punctuation">(</span>header<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">"GET /?r"</span><span class="token punctuation">)</span> <span class="token operator">&gt;=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                            pos1 <span class="token operator">=</span> header<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">'r'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            pos2 <span class="token operator">=</span> header<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            pos3 <span class="token operator">=</span> header<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">'b'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            pos4 <span class="token operator">=</span> header<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">'&amp;'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            redString <span class="token operator">=</span> header<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span>pos1<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> pos2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            greenString <span class="token operator">=</span> header<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span>pos2<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> pos3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            blueString <span class="token operator">=</span> header<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span>pos3<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> pos4<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token comment">/*Serial.println(redString.toInt());
+                            Serial.println(greenString.toInt());
+                            Serial.println(blueString.toInt());*/</span>
+                            <span class="token function">ledcWrite</span><span class="token punctuation">(</span>redChannel<span class="token punctuation">,</span> redString<span class="token punctuation">.</span><span class="token function">toInt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token function">ledcWrite</span><span class="token punctuation">(</span>greenChannel<span class="token punctuation">,</span> greenString<span class="token punctuation">.</span><span class="token function">toInt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token function">ledcWrite</span><span class="token punctuation">(</span>blueChannel<span class="token punctuation">,</span> blueString<span class="token punctuation">.</span><span class="token function">toInt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                          <span class="token punctuation">}</span>
+                          <span class="token comment">// Break out of the while loop</span>
+                          <span class="token keyword">break</span><span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span> <span class="token comment">// if you got a newline, then clear currentLine</span>
+                          currentLine <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span>
+                      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>c <span class="token operator">!=</span> <span class="token string">'\r'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>  <span class="token comment">// if you got anything else but a carriage return character,</span>
+                        currentLine <span class="token operator">+=</span> c<span class="token punctuation">;</span>      <span class="token comment">// add it to the end of the currentLine</span>
+                      <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span>
+                  <span class="token punctuation">}</span>
+                  <span class="token comment">// Clear the header variable</span>
+                  header <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span>
+                  <span class="token comment">// Close the connection</span>
+                  client<span class="token punctuation">.</span><span class="token function">stop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                  Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Client disconnected."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                  Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+              <span class="token punctuation">}</span>
+              </code></pre>
+        </div>
+
+        <div class="contenedor-video">
+            <div class="contenedor-video_titulo">
+                <h2> Videos del funcionamineto del proyecto</h2>
+            </div>
+
+            <video controls autoplay>
+                <source src="img/Video.mp4">
+            </video>
+        </div>
+
+    </div>
+</body>
+</html>
