@@ -94,10 +94,14 @@
               <font></font>
               <span class="token comment">// Load Wi-Fi library</span>
               <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;WiFi.h&gt;</span></span><font></font>
+              <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;wifiClient.h&gt;</span></span><font></font>
+              <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;wiFiAP.h&gt;</span></span><font></font>
               <font></font>
+
+
               <span class="token comment">// Replace with your network credentials</span>
-              <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> ssid     <span class="token operator">=</span> <span class="token string">"REPLACE_WITH_YOUR_SSID"</span><span class="token punctuation">;</span>
-              <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> password <span class="token operator">=</span> <span class="token string">"REPLACE_WITH_YOUR_PASSWORD"</span><span class="token punctuation">;</span><font></font>
+              <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> ssid     <span class="token operator">=</span> <span class="token string">"CONTROLADOR LED"</span><span class="token punctuation">;</span>
+              <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> password <span class="token operator">=</span> <span class="token string">"123456789"</span><span class="token punctuation">;</span><font></font>
               <font></font>
               <span class="token comment">// Set web server port number to 80</span>
               WiFiServer <span class="token function">server</span><span class="token punctuation">(</span><span class="token number">80</span><span class="token punctuation">)</span><span class="token punctuation">;</span><font></font>
